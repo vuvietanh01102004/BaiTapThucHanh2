@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App Xem Giá Vàng, Đô La, Thời Tiết</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Thông Tin Thị Trường</h1>
+
+    {% if error %}
+        <p class="error">Lỗi: {{ error }}</p>
+    {% endif %}
+
+    <h2>Giá Vàng</h2>
+    <p>Giá vàng hôm nay: {{ gold['rates']['USD'] }} USD/ounce</p>
+
+    <h2>Tỷ Giá Đô La</h2>
+    <p>Tỷ giá USD: {{ currency['rates']['VND'] }} VND</p>
+
+    <h2>Thời Tiết</h2>
+    <p>Thành phố: {{ weather['name'] }}</p>
+    <p>Nhiệt độ: {{ weather['current_weather']['temperature'] }} °C</p>
+    <p>Thời tiết: {{ weather['weather'][0]['description'] }}</p>
+
+    <h2>Biểu Đồ Giá Vàng Theo Năm</h2>
+    <canvas id="goldChart"></canvas>
+
+    <script>
+        const goldHistory = {{ gold_history | safe }};
+        const ctx = document.getElementById('goldChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: goldHistory.years,
+                datasets: [{
+                    label: 'Giá vàng (USD/ounce)',
+                    data: goldHistory.prices,
+                    borderColor: 'gold',
+                    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Năm' } },
+                    y: { title: { display: true, text: 'Giá vàng (USD/ounce)' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
